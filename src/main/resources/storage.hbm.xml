@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="Storage" table="storage" catalog="db3939573" optimistic-lock="version">
+        <id name="id" type="string">
+            <column name="id"/>
+        </id>
+
+        <set name="boxStorageSet" table="box_storage" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="storage_id" not-null="true"/>
+            </key>
+            <one-to-many class="BoxStorage"/>
+        </set>
+    </class>
+</hibernate-mapping>

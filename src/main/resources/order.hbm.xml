@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="Order" table="orders" catalog="db3939573" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+        </id>
+        <many-to-one name="customer" class="Customer" fetch="select">
+            <column name="customer_id" not-null="true"/>
+        </many-to-one>
+        <many-to-one name="shippingCompany" class="ShippingCompany" fetch="select">
+            <column name="shipping_company_name" not-null="true"/>
+        </many-to-one>
+        <property name="date" type="date">
+            <column name="date"/>
+        </property>
+        <set name="drugOrderSet" table="drug_order" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="order_id" not-null="true"/>
+            </key>
+            <one-to-many class="DrugOrder"/>
+        </set>
+    </class>
+</hibernate-mapping>

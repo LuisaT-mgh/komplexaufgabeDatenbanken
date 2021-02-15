@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="Drug" table="drug" catalog="db3939573" optimistic-lock="version">
+        <id name="number" type="java.lang.Integer">
+            <column name="number"/>
+        </id>
+        <many-to-one name="boxStorage" class="BoxStorage" fetch="select">
+            <column name="box_id" not-null="true"/>
+        </many-to-one>
+
+        <set name="drugOrderSet" table="drug_order" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="drug_number" not-null="true"/>
+            </key>
+            <one-to-many class="DrugOrder"/>
+        </set>
+    </class>
+</hibernate-mapping>
