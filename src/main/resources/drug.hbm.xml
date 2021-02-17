@@ -7,7 +7,7 @@
             <column name="number"/>
         </id>
         <many-to-one name="boxStorage" class="BoxStorage" fetch="select">
-            <column name="box_id" not-null="true"/>
+            <column name="box_storage_box_id" not-null="true"/>
         </many-to-one>
 
         <set name="drugOrderSet" table="drug_order" inverse="true" lazy="true" fetch="select">
@@ -16,5 +16,14 @@
             </key>
             <one-to-many class="DrugOrder"/>
         </set>
+        <property name="name" type="java.lang.String">
+            <column name="name"/>
+        </property>
+        <property name="price" type="float">
+            <column name="price"/>
+        </property>
+        <property name="quantity" type="java.lang.Integer">
+            <column name="quantity"/>
+        </property>
     </class>
 </hibernate-mapping>

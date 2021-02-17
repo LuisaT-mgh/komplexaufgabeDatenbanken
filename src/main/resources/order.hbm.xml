@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-    <class name="Order" table="orders" catalog="db3939573" optimistic-lock="version">
+    <class name="Order" table="order" catalog="db3939573" optimistic-lock="version">
         <id name="id" type="java.lang.Integer">
             <column name="id"/>
         </id>
@@ -10,7 +10,7 @@
             <column name="customer_id" not-null="true"/>
         </many-to-one>
         <many-to-one name="shippingCompany" class="ShippingCompany" fetch="select">
-            <column name="shipping_company_name" not-null="true"/>
+            <column name="shipping_company_name" not-null="false"/>
         </many-to-one>
         <property name="date" type="date">
             <column name="date"/>
