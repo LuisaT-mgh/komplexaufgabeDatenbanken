@@ -2,6 +2,7 @@ import antlr.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
@@ -24,21 +25,19 @@ public class Facility {
     }
 
     public void application() throws IOException, InterruptedException, ParseException {
-        String command = "start";
+        String command = "";
         System.out.println("Enter \"exit\" to shut down programm");
         System.out.println("Please enter your command:");
 
         while (!command.equals("exit")) {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            String readLine = br.readLine();
-            while (readLine != null){
-                command = command.concat(readLine);
-                readLine = br.readLine();
+            String readLine;
+            while ((readLine = br.readLine()) != null){
+              command = command+readLine;
             }
-
-
+            command = br.readLine();
+            br.close();
             session.beginTransaction();
-            java.util.concurrent.TimeUnit.SECONDS.sleep(2);
             handleCommand(command);
             session.getTransaction().commit();
 
@@ -138,23 +137,27 @@ public class Facility {
         command = command.replaceAll("\\)", "");
         String[] name = command.split(" ");
         Criteria criteria = session.createCriteria(Customer.class);
-        Customer customerWithFirstName = (Customer) criteria.add(Restrictions.eq("firstName", name[0]))
-                .uniqueResult();
-        Customer customerWithLastName = (Customer) criteria.add(Restrictions.eq("lastName", name[1]))
-                .uniqueResult();
-        if(customerWithFirstName.getId() == customerWithLastName.getId()) {
-            Customer customer = customerWithFirstName;
-            System.out.println(customer.getFirstName() + " | " + customer.getLastName() + " | " + customer.getId() + " | " + customer.getDateOfBirth() + " | " + customer.getStreet() + " | " + customer.getZipCode() + " | " + customer.getCity() + " | " + customer.getServicePin());
-        }
-        else{
+        Criterion firstNameCriterion = Restrictions.like("firstName", name[0]);
+        Criterion lastNameCriterion = Restrictions.like("lastName", name[1]);
+        Criterion combined = Restrictions.and(firstNameCriterion,lastNameCriterion);
+        criteria.add(combined);
+        List list = criteria.list();
+        if(list == null){
             System.out.println("Customer not found");
         }
+        else if(list.size()>1){
+            System.out.println("Name not unique");
+        }
+        Customer customer = (Customer) list.get(0);
+
+        System.out.println(customer.getFirstName() + " | " + customer.getLastName() + " | " + customer.getId() + " | " + customer.getDateOfBirth() + " | " + customer.getStreet() + " | " + customer.getZipCode() + " | " + customer.getCity() + " | " + customer.getServicePin());
+
     }
     public void createNewOrder (String command){
         String[] firstSplit = command.split("\\(");
         ArrayList<String> data = new ArrayList<>();
-        for(int i = 1; i<firstSplit.length; i++){
-            String line = "This order was placed for QT3000! OK?";
+
+        /*for(int i = 1; i<firstSplit.length; i++){
             Pattern pattern = Pattern.compile("quantity\s([0-9]*)");
             Matcher matcher = pattern.matcher(firstSplit[i]);
             if(matcher.group(1)!= null){
@@ -162,24 +165,32 @@ public class Facility {
             }
             String content = firstSplit[i].split("\\)")[0];
             data.add(content);
-        }
-        String orderNumber = data.get(0);
-        String customerNumber = data.get(1);
+        }*/
+        String orderNumber = firstSplit[1].split("\\)")[0];
+        String customerNumber = firstSplit[2].split("\\)")[0];
         Order order = new Order();
-        order.setCustomer(session.get(Customer.class, customerNumber));
+        order.setCustomer(session.get(Customer.class, Integer.parseInt(customerNumber)));
         order.setDate(new Date());
         order.setId(Integer.parseInt(orderNumber));
         session.save(order);
-        for (int i = 2; i<data.size(); i=i+2){
+        /*for (int i = 2; i<data.size(); i=i+2){
             DrugOrder drugOrder = new DrugOrder();
             drugOrder.setOrder(order);
             //drugOrder.setPositionsAmount(data);
 
-        }
+        }*/
 
 
     }
     public void sendOrder (String command){
-
+        String[] data = command.split("\\(");
+        String orderNumber = data[1].split("\\)")[0];
+        String serviceName = data[1].split("\\)")[0];
+        ShippingCompany shippingCompany = new ShippingCompany();
+        shippingCompany.setName(serviceName);
+        Order order = session.get(Order.class, orderNumber);
+        order.setShippingCompany(shippingCompany);
+        session.save(shippingCompany);
+        session.save(order);
     }
 }
