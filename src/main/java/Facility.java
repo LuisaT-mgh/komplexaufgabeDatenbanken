@@ -1,9 +1,6 @@
-import antlr.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
 import java.io.BufferedReader;
@@ -11,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,7 +20,7 @@ public class Facility {
         this.session = session;
     }
 
-    public void application() throws IOException, InterruptedException, ParseException {
+    public void application() throws IOException, ParseException {
         String command = "";
         System.out.println("Enter \"exit\" to shut down programm");
         System.out.println("Please enter your command:");
@@ -63,7 +59,7 @@ public class Facility {
             sendOrder(command);
         }
     }
-    public void addDrug (String command) throws ParseException {
+    public void addDrug (String command) {
         String[] splitCommand = command.split("\\(");
         String drugDataString = splitCommand[1];
         drugDataString = drugDataString.split("\\)")[0];
