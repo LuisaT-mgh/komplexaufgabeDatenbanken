@@ -16,9 +16,6 @@ public class Application {
         SessionFactory sessionFactory = HibernateUtility.getSessionFactory();
         Session session = sessionFactory.openSession();
 
-        ShowAll sh = new ShowAll(session);
-        //sh.showAll();
-
         Facility facility = new Facility(session);
         facility.application();
 

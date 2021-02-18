@@ -29,18 +29,15 @@ public class Facility {
         System.out.println("Enter \"exit\" to shut down programm");
         System.out.println("Please enter your command:");
 
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
         while (!command.equals("exit")) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            String readLine;
-            while ((readLine = br.readLine()) != null){
-              command = command+readLine;
-            }
             command = br.readLine();
-            br.close();
             session.beginTransaction();
             handleCommand(command);
             session.getTransaction().commit();
 
+            System.out.println("Transaction successful");
             System.out.println("Enter \"exit\" to shut down programm");
             System.out.println("Please enter your command:");
         }
@@ -155,17 +152,7 @@ public class Facility {
     }
     public void createNewOrder (String command){
         String[] firstSplit = command.split("\\(");
-        ArrayList<String> data = new ArrayList<>();
 
-        /*for(int i = 1; i<firstSplit.length; i++){
-            Pattern pattern = Pattern.compile("quantity\s([0-9]*)");
-            Matcher matcher = pattern.matcher(firstSplit[i]);
-            if(matcher.group(1)!= null){
-                data.add(matcher.group(1));
-            }
-            String content = firstSplit[i].split("\\)")[0];
-            data.add(content);
-        }*/
         String orderNumber = firstSplit[1].split("\\)")[0];
         String customerNumber = firstSplit[2].split("\\)")[0];
         Order order = new Order();
@@ -173,22 +160,32 @@ public class Facility {
         order.setDate(new Date());
         order.setId(Integer.parseInt(orderNumber));
         session.save(order);
-        /*for (int i = 2; i<data.size(); i=i+2){
-            DrugOrder drugOrder = new DrugOrder();
-            drugOrder.setOrder(order);
-            //drugOrder.setPositionsAmount(data);
+        for (int i = 3; i<firstSplit.length; i=i+2){
+            Pattern pattern = Pattern.compile("quantity\s([0-9]*)\s");
+            Matcher matcher = pattern.matcher(firstSplit[i]);
+            matcher.find();
+            String quantity = matcher.group(1);
 
-        }*/
+            Integer drugNumber= Integer.parseInt(firstSplit[i].split("\\)")[0]);
+            Integer orderNumberToAdd = Integer.parseInt(firstSplit[i+1].split("\\)")[0]);
+
+            DrugOrder drugOrder = new DrugOrder();
+            drugOrder.setOrder(session.get(Order.class, orderNumberToAdd));
+            drugOrder.setPositionsAmount(Integer.parseInt(quantity));
+            drugOrder.setDrug(session.get(Drug.class, drugNumber));
+
+            session.save(drugOrder);
+        }
 
 
     }
     public void sendOrder (String command){
         String[] data = command.split("\\(");
         String orderNumber = data[1].split("\\)")[0];
-        String serviceName = data[1].split("\\)")[0];
+        String serviceName = data[2].split("\\)")[0];
         ShippingCompany shippingCompany = new ShippingCompany();
         shippingCompany.setName(serviceName);
-        Order order = session.get(Order.class, orderNumber);
+        Order order = session.get(Order.class, Integer.parseInt(orderNumber));
         order.setShippingCompany(shippingCompany);
         session.save(shippingCompany);
         session.save(order);
